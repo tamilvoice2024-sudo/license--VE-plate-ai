@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>License Plate Recognition AI</title>
+<style>
+:root{font-family:Inter,Arial,sans-serif;color:#172033;background:#f4f7fb}*{box-sizing:border-box}
+body{margin:0}.wrap{max-width:900px;margin:36px auto;padding:16px}.hero{background:#172033;color:#fff;padding:28px;border-radius:18px}
+h1{margin:0 0 8px;font-size:clamp(26px,5vw,38px)}p{line-height:1.55}.card{background:#fff;border:1px solid #dfe5ee;border-radius:16px;padding:22px;margin-top:18px}
+button{border:0;border-radius:10px;padding:12px 18px;background:#2457d6;color:#fff;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}input{max-width:100%;margin:14px 0}#status{white-space:pre-wrap;margin-top:14px}.pill{display:inline-block;background:#e7edff;color:#2449a8;border-radius:30px;padding:6px 10px;font-size:13px}
+</style></head>
+<body><main class="wrap">
+<section class="hero"><span class="pill">AI VIDEO ANALYSIS</span><h1>License Plate Recognition</h1>
+<p>Upload a complete video to detect license plates and export a CSV report.</p></section>
+<section class="card"><h2>Analyze Video</h2><p>Supported formats: MP4, AVI, MOV, MKV, WEBM. The backend requires a trained license plate detection model.</p>
+<input id="video" type="file" accept="video/*"><br><button id="analyze">Analyze Video &amp; Download CSV</button><div id="status" role="status">Ready.</div></section>
+<section class="card"><h2>Model Status</h2><button id="health" type="button">Check API / Model Status</button><div id="healthStatus" role="status"></div></section>
+</main><script>
+const status=document.getElementById('status'), button=document.getElementById('analyze');
+document.getElementById('health').onclick=async()=>{let out=document.getElementById('healthStatus');out.textContent='Checking...';try{let r=await fetch('/api/health');out.textContent=JSON.stringify(await r.json(),null,2)}catch(e){out.textContent='Cannot reach API. Start the backend and open this website from the server URL.'}};
+button.onclick=async()=>{const f=document.getElementById('video').files[0];if(!f){status.textContent='Please choose a video first.';return}button.disabled=true;status.textContent='Uploading and analyzing video. Large videos may take time...';try{let form=new FormData();form.append('file',f);let r=await fetch('/api/analyze',{method:'POST',body:form});if(!r.ok)throw new Error(await r.text());let blob=await r.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=f.name.replace(/\.[^.]+$/,'')+'_plate_report.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);status.textContent='Analysis complete. CSV downloaded.'}catch(e){status.textContent='Analysis failed: '+e.message}finally{button.disabled=false}};
+</script></body></html>

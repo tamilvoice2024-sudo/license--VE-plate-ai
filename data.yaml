@@ -1,0 +1,5 @@
+path: ./dataset/plate_detection
+train: images/train
+val: images/val
+names:
+  0: license_plate
